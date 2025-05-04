@@ -20,33 +20,11 @@ exec_always --no-startup-id xmodmap -e "keycode 66 = Escape NoSymbol Escape"
 ####### Hardware Stuff ########
 
 # Monitors
-# exec xrandr --output eDP-1 --output DP-3 --above eDP-1 --output DP-4 --left-of DP-3 --rotate left 
+exec xrandr --output DisplayPort-1 --primary --output DisplayPort-0 --rotate left --left-of DisplayPort-1
+set $main DisplayPort-1
+set $second DisplayPort-0
 
-# exec xrandr --output eDP-1 --output DP-1 --above eDP-1 --output DP-2 --left-of DP-1
-set $builtin eDP-1
-set $first DP-1
-set $second DP-2
-set $third DP-3
-set $fourth DP-4
-
-# exec xrandr --output DP-1 --output DP-2 --left-of DP-1
-
-# exec xrandr 1 --output DP-3 --output DP-4 --left-of DP-3
-# exec xrandr --output DP-4 --pos 0x0 
-# exec xrandr --output DP-3 --pos 1920x0
-# exec xrandr --output eDP-1 --pos 1920x1080
-
-# exec xrandr --output DP-4 --auto
-# exec xrandr --output DP-3 --auto
-# exec xrandr --output eDP-1 --auto
-
-# Brightness settings
-bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl --min-val=1 -q set 3%-
-bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl -q set 3%+
-
-
-# Touchpad settings
-exec xinput set-prop "PIXA3854:00 093A:0274 Touchpad" "libinput Tapping Enabled" 1
+set $mod Mod1
 
 ##### Pulse Audio ########
 
@@ -57,42 +35,41 @@ bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
-
-set $mod Mod1
-
 # Windows Settings 
 
 default_border none
 default_floating_border none
 hide_edge_borders none
-for_window [class="^.*"] border pixel 8
+for_window [class="^.*"] border pixel 2
 
-gaps outer 1
-gaps inner 32
+# gaps outer 20
+# gaps inner 32
+
+gaps inner 12
+gaps outer 32
 
 smart_borders on
 smart_borders no_gaps
 
-# set radius on how curved we want it to be
-border_radius 15
 
 # window colors: border background text
-client.focused           #7851a9 #7851a9 #7851a9 #7851a9
-client.focused_inactive  #7851a9 #7851a9 #7851a9 #7851a9
-client.unfocused         #7851a9 #7851a9 #7851a9 #7851a9
-client.urgent            #7851a9 #7851a9 #7851a9 #7851a9
+client.focused           #5BC0BE #5BC0BE #5BC0BE #5BC0BE
+client.focused_inactive  #5BC0BE #5BC0BE #5BC0BE #5BC0BE
+client.unfocused         #5BC0BE #5BC0BE #5BC0BE #5BC0BE
+client.urgent            #5BC0BE #5BC0BE #5BC0BE #5BC0BE
 
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
-font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
-font pango:DejaVu Sans Mono 20
-font pango:DejaVu Sans Mono, Terminus Bold Semi-Condensed 20
-font pango:Terminus 20px
+# font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+# font pango:DejaVu Sans Mono 20
+# font pango:DejaVu Sans Mono, Terminus Bold Semi-Condensed 20
+# font pango:Terminus 20px
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec alacritty
+# bindsym $mod+Return exec alacritty
+bindsym $mod+Return exec kitty
 
 # kill focused window
 bindsym $mod+Shift+q kill
@@ -162,7 +139,7 @@ bindsym $mod+a focus parent
 # Make the currently focused window a scratchpad
 bindsym $mod+Shift+minus move scratchpad
 
-# Show the first scratchpad window
+# Show the main scratchpad window
 bindsym $mod+minus scratchpad show
 
 # focus the child container
@@ -274,26 +251,30 @@ exec_always --no-startup-id setxkbmap -option caps:escape
 exec_always --no-startup-id picom &
 
 # Wallpaper
-exec --no-startup-id nitrogen --restore
+# exec --no-startup-id nitrogen --restore
 
 # Polybar
-exec polybar spotify_bar &
-exec polybar main_bar &
-exec polybar right_bar &
+## super jenk way to get polybar to restart on
+## config reload
+exec_always touch ~/.config/polybar/config.ini
+exec polybar -r spotify_bar &
+exec polybar -r main_bar &
+exec polybar -r right_bar &
 
 # Startup Apps
 exec dunst &
 exec blueman-applet
 exec firefox
-exec alacritty
-exec spotify-launcher
+# exec alacritty
+exec kitty
+exec spotify
 exec discord
 
 
-workspace $ws1 output $second $fourth $builtin
-workspace $ws2 output $first $third $builtin
-workspace $ws3 output $second $fourth $builtin
-workspace $ws4 output $second $fourth $builtin
+workspace $ws1 output $main
+workspace $ws2 output $main
+workspace $ws3 output $second
+workspace $ws4 output $second
 
 set $ws1 "1:Web"
 set $ws2 "2:Terminal"
@@ -302,5 +283,6 @@ set $ws4 "4:Discord"
 
 for_window [class="Firefox"] move to workspace $ws1 
 for_window [class="Alacritty"] move to workspace $ws2
+for_window [class="kitty"] move to workspace $ws2
 for_window [class="Spotify"] move to workspace $ws3
 for_window [class="discord"] move to workspace $ws4
